@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Django Shop</title>
+    <link rel="icon" type="image/jpg" href="/images/icon.jpg">
+    <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div style="background-color: darkgray">
+    {% block content %}
+        {% if messages %}
+            {% for message in messages %}
+                <h1 style="background-color: red">{{ message }}</h1>
+            {% endfor %}
+        {% endif %}
+        {% if request.user.is_authenticated and request.user.is_superuser == False %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-10" style="background-color: lightgray">
+                        <h2> Здарова, {{ request.user }}!</h2>
+                    </div>
+                    <div class="col-2" style="background-color: lightgray">
+                        <form method="get" action="{% url 'logout' %}">
+                            <button type="submit" class="btn btn-warning" value="Logout"> Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h4 style="color: whitesmoke">На твоем счету: {{ request.user.wallet }} ₿ </h4>
+                    </div>
+                </div>
+            </div>
+
+            {% for prod in object_list %}
+                <form method="post" action="{% url 'create_purchase' %}">
+                    <div style="background-color: #b3d7ff">
+                        <P>Наименование товара: {{ prod.name }}
+                        <p>Описание товара: {{ prod.description }}</p>
+                        <p>Стоимость товара: {{ prod.price }}</p>
+                        <p>Наличие товара на складе: {{ prod.quantity_in_stock }}</p>
+                        <p>Картинка: {{ prod.image }}</p>
+                        <p>{{ purchase_form }}</p>
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ prod.id }}">
+                        <button type="submit" class="btn btn-success" value="buy"> Купить</button>
+                    </div>
+                </form>
+                <form method="get" action="{% url 'purchase' %}">
+                    <button type="submit" class="btn btn-info" value="My purchase"> Мои покупки</button>
+                </form>
+            {% endfor %}
+        {% endif %}
+
+
+        {% if request.user.is_superuser %}
+            <div class="container">
+            <div class="row">
+                <div class="col-6" style="background-color: lightgray">
+                    <h2> Здарова суперюзер, {{ request.user }}!</h2>
+                </div>
+                <div class="col-3" style="background-color: lightgray">
+                    <form method="get" action="{% url 'logout' %}">
+                        <br>
+                        <button type="submit" class="btn btn-warning" value="Logout"> Выйти из аккаунта</button>
+                    </form>
+                </div>
+                <div class="col-3" style="background-color: lightgray">
+                    <form method="get" action="{% url 'returns' %}">
+                        <button type="submit" class="btn btn-info" value="Return view"> Возврат к просмотру</button>
+                    </form>
+                </div>
+            </div>
+            <div class="container">
+            <div class="row">
+                <div class="col-8" style="background-color: darkseagreen">
+                    {% for prod in object_list %}
+                        <div style="background-color: darkseagreen">
+                            <P>Товар: {{ prod.name }}
+                            <p>Описание товара: {{ prod.description }}</p>
+                            <p>Стоимость: {{ prod.price }}</p>
+                            <p>Наличие товара на складе: {{ prod.quantity_in_stock }}</p>
+                        </div>
+                            <div class="col-3" style="background-color: lightgray">
+                            <form method="get" action="{% url 'update_product' prod.pk %}">
+                                <button type="submit" class="btn btn-info" value="Update"> Обновить товар</button>
+                            </form>
+                            </div>
+                            <div class="col-3" style="background-color: lightgray">
+                            <form method="get" action="{% url 'product_create' %}">
+                                <button type="submit" class="btn btn-info" value="Add"> Добавить новый товар</button>
+                            </form>
+                            </div>
+                        </div>
+                        </div>
+                        </div>
+                    {% endfor %}
+        {% endif %}
+    {% if request.user.is_anonymous %}
+        <div class="container">
+            <div class="row">
+                <div class="col-9">
+                    <h2 class="text-center"> Уже есть аккаунт? </h2>
+                </div>
+                <div class="col-3">
+                    <form method="get" action="{% url 'login' %}">
+                        <button type="submit" class="btn btn-success" value="Login"> Войти</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-9">
+                    <h2 class="text-center"> Еще не зарегистрировался?</h2>
+                </div>
+                <div class="col-3">
+                    <form method="get" action="{% url 'registration' %}">
+                        <button type="submit" class="btn btn-warning" value="Registration"> Регистрация</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {% for prod in object_list %}
+            <div style="background-color: darkseagreen">
+                <P>Товар: {{ prod.name }}
+                <p>Описание товара: {{ prod.description }}</p>
+                <p>Стоимость товара: {{ prod.price }}</p>
+                <p>Наличие товара на складе: {{ prod.quantity_in_stock }}</p>
+                <img src="{{ prod.image }}" width="100px" height="100px" alt="">
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
+    {% endblock %}
+</body>
+</html>

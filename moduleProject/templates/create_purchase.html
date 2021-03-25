@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div style="background-color: mediumseagreen">
+    {% if messages %}
+        {% for message in messages %}
+            <h1 style="background-color: red"> {{ message }}</h1>
+        {% endfor %}
+    {% endif %}
+    <form method="get" action="{% url 'base' %}">
+        <input type="submit" value="Base page">
+    </form>
+        <h1>Your purchases:</h1>
+    </div>
+    {% for purchase in object_list %}
+        <form method="post" action="{% url 'purchase_return' %}">
+            <div style="background-color: bisque">
+                <p>Product: {{ purchase.product.name }}</p>
+                <p>Quantity: {{ purchase.quantity_of_products }}</p>
+                <p>Time of buy: {{ purchase.time_of_buy }}</p>
+                <p>id: {{ purchase.id }}</p>
+                {% csrf_token %}
+                <input type="hidden" name="purchase_id" value="{{ purchase.id }}">
+                <input type="submit" value="Return order">
+            </div>
+        </form>
+    {% endfor %}
+{% endblock %}
